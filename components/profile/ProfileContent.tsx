@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { User, Mail, Phone, MapPin, Edit, Plus, Archive } from "lucide-react";
 import Link from "next/link";
 import { EmptyState } from "@/components/common/EmptyState";
-import { Package } from "lucide-react";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAdverts } from "./UserAdverts";

@@ -60,7 +60,7 @@ export function UserAdverts() {
         <CardContent className="p-6">
           <h2 className="text-xl font-semibold mb-4">My Ads</h2>
           <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">You haven't posted any ads yet</p>
+            <p className="text-muted-foreground mb-4">You haven&apos;t posted any ads yet</p>
             <Link href="/add-advert">
               <Button>
                 <Plus className="h-4 w-4 mr-2" />

@@ -55,7 +55,7 @@ export function RecoveryForm() {
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold">Check your email</h2>
           <p className="text-muted-foreground">
-            We've sent a password reset link to <strong>{getValues("email")}</strong>
+            We&apos;ve sent a password reset link to <strong>{getValues("email")}</strong>
           </p>
         </div>
         <div className="flex flex-col space-y-2">

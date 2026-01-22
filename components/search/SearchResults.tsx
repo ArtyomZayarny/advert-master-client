@@ -6,6 +6,7 @@ import { AdvertsList } from "@/components/advert/AdvertsList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/common/EmptyState";
 import { Search } from "lucide-react";
+import Image from "next/image";
 
 interface SearchResultsProps {
   query: string;
@@ -81,10 +82,11 @@ export function SearchResults({ query, category, city }: SearchResultsProps) {
           >
             <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
               <div className="relative aspect-square">
-                <img
+                <Image
                   src={ad.upload || "/placeholder.jpg"}
                   alt={ad.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
               <div className="p-4">
