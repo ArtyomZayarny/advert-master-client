@@ -20,7 +20,8 @@ interface AdvertCardProps {
     upload: string;
     city?: string;
     address?: string;
-    category: string;
+    category?: string;
+    db_category?: string;
   };
   showFavorite?: boolean;
 }
@@ -30,9 +31,15 @@ export function AdvertCard({ ad, showFavorite = true }: AdvertCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const queryClient = useQueryClient();
 
+  // Ensure category is available, fallback to db_category if needed
+  const advertCategory = ad.category || ad.db_category;
+
   const favoriteMutation = useMutation({
     mutationFn: async () => {
-      await apiClient.post(`/${ad.category}/favourites`, { advertId: ad.id });
+      if (!advertCategory) {
+        throw new Error("Category is required");
+      }
+      await apiClient.post(`/${advertCategory}/favourites`, { advertId: ad.id });
     },
     onSuccess: () => {
       setIsFavorite(!isFavorite);
@@ -53,15 +60,14 @@ export function AdvertCard({ ad, showFavorite = true }: AdvertCardProps) {
     favoriteMutation.mutate();
   };
 
-  // Ensure category is available, fallback to db_category if needed
-  const advertCategory = ad.category || ad.db_category;
-  
+  // Check category after hooks
   if (!advertCategory) {
     console.warn('AdvertCard: Missing category for ad', ad.id);
+    return null; // Don't render if category is missing
   }
 
   return (
-    <Link href={advertCategory ? `/listings/${advertCategory}/${ad.id}` : '#'}>
+    <Link href={`/listings/${advertCategory}/${ad.id}`}>
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
         <div className="relative aspect-square">
           <Image
