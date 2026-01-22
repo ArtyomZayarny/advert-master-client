@@ -1,25 +1,39 @@
+"use client";
+
 import { Header } from "@/components/layout/Header";
 import { AdvertsList } from "@/components/advert/AdvertsList";
 import { getCategoryById } from "@/lib/constants/categories";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-interface PageProps {
-  params: Promise<{ category: string }>;
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}
+export default function CategoryPage() {
+  const params = useParams();
+  const [mounted, setMounted] = useState(false);
+  const category = params?.category as string;
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-export default async function CategoryPage({ params, searchParams }: PageProps) {
-  const { category } = await params;
+  if (!mounted) {
+    return (
+      <div className="container py-8">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-muted rounded w-1/4"></div>
+          <div className="h-4 bg-muted rounded w-1/2"></div>
+        </div>
+      </div>
+    );
+  }
+
   const categoryData = getCategoryById(category);
 
   if (!categoryData) {
     notFound();
   }
 
-  const searchParamsObj = await searchParams;
-  const page = Number(searchParamsObj.page) || 1;
   const limit = 20;
-  const offset = (page - 1) * limit;
+  const offset = 0; // Will be handled by AdvertsList with pagination
 
   return (
     <>

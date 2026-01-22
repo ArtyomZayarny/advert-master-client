@@ -116,7 +116,7 @@ export function EditAdvertForm({ advert, category }: EditAdvertFormProps) {
     },
     onSuccess: () => {
       toast.success("Ad updated successfully!");
-      router.push(`/adverts/${category}/${advert.id}`);
+      router.push(`/listings/${category}/${advert.id}`);
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.detail || "Failed to update ad");

@@ -74,10 +74,16 @@ export function SearchResults({ query, category, city }: SearchResultsProps) {
         Found {data.length} result{data.length !== 1 ? "s" : ""}
       </p>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {data.map((ad: any) => (
+        {data.map((ad: any) => {
+          const advertCategory = ad.category || ad.db_category;
+          if (!advertCategory) {
+            console.warn('SearchResults: Missing category for ad', ad.id);
+            return null;
+          }
+          return (
           <a
             key={ad.id}
-            href={`/adverts/${ad.category}/${ad.id}`}
+            href={`/listings/${advertCategory}/${ad.id}`}
             className="block"
           >
             <div className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group">
@@ -102,7 +108,8 @@ export function SearchResults({ query, category, city }: SearchResultsProps) {
               </div>
             </div>
           </a>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

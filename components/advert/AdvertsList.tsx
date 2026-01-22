@@ -27,13 +27,37 @@ export function AdvertsList({ category, limit, offset }: AdvertsListProps) {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["adverts", category, limit, offset, appliedFilters],
-    queryFn: () => {
+    queryFn: async () => {
       const params: any = { limit, offset };
       if (appliedFilters.city) params.city = appliedFilters.city;
       if (appliedFilters.priceMin) params.price_min = appliedFilters.priceMin;
       if (appliedFilters.priceMax) params.price_max = appliedFilters.priceMax;
-      if (appliedFilters.sortBy) params.sort = appliedFilters.sortBy;
-      return advertsApi.getByCategory(category, params);
+      // Map frontend sort values to backend format
+      if (appliedFilters.sortBy) {
+        if (appliedFilters.sortBy === 'price_asc') {
+          params.sort = 'cheap';
+        } else if (appliedFilters.sortBy === 'price_desc') {
+          params.sort = 'expensive';
+        } else if (appliedFilters.sortBy === 'date') {
+          // date sorting is default (by vip, top, lifts), no need to send
+        } else {
+          params.sort = appliedFilters.sortBy;
+        }
+      }
+      const response = await advertsApi.getByCategory(category, params);
+      // API returns { results: [], overall_total: number }
+      // Extract results array and total count
+      if (response && typeof response === 'object' && 'results' in response) {
+        return {
+          results: Array.isArray(response.results) ? response.results : [],
+          total: response.overall_total || 0,
+        };
+      }
+      // Fallback if response is already an array (backward compatibility)
+      return {
+        results: Array.isArray(response) ? response : [],
+        total: Array.isArray(response) ? response.length : 0,
+      };
     },
   });
 
@@ -62,7 +86,10 @@ export function AdvertsList({ category, limit, offset }: AdvertsListProps) {
     );
   }
 
-  if (!data || data.length === 0) {
+  const ads = data?.results || [];
+  const total = data?.total || 0;
+
+  if (!ads || ads.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground text-lg">No ads found in this category.</p>
@@ -77,15 +104,21 @@ export function AdvertsList({ category, limit, offset }: AdvertsListProps) {
     <>
       <AdvertFilters onApplyFilters={setAppliedFilters} />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {data.map((ad: any) => (
-          <AdvertCard key={ad.id} ad={{ ...ad, category }} />
+        {ads.map((ad: any) => (
+          <AdvertCard 
+            key={ad.id} 
+            ad={{ 
+              ...ad, 
+              category: ad.db_category || category,
+            }} 
+          />
         ))}
       </div>
-      {data && data.length >= limit && (
+      {total > limit && (
         <Pagination
           currentPage={currentPage}
-          totalPages={Math.ceil((data.length || 0) / limit)}
-          basePath={`/adverts/${category}`}
+          totalPages={Math.ceil(total / limit)}
+          basePath={`/listings/${category}`}
         />
       )}
     </>

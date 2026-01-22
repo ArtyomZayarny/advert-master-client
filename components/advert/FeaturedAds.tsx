@@ -12,7 +12,26 @@ export function FeaturedAds() {
         `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/new`
       );
       if (!response.ok) return [];
-      return response.json();
+      const categoriesData = await response.json();
+      
+      // API returns an object with categories, convert to flat array
+      if (categoriesData && typeof categoriesData === 'object' && !Array.isArray(categoriesData)) {
+        const allAds: any[] = [];
+        Object.values(categoriesData).forEach((categoryAds: any) => {
+          if (Array.isArray(categoryAds)) {
+            allAds.push(...categoryAds);
+          }
+        });
+        // Sort by created_at (newest first)
+        return allAds.sort((a, b) => {
+          const dateA = new Date(a.created_at || 0).getTime();
+          const dateB = new Date(b.created_at || 0).getTime();
+          return dateB - dateA;
+        });
+      }
+      
+      // If it's already an array, return as is
+      return Array.isArray(categoriesData) ? categoriesData : [];
     },
   });
 
@@ -34,7 +53,7 @@ export function FeaturedAds() {
     );
   }
 
-  if (!data || data.length === 0) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
         <p>No featured ads available at the moment.</p>

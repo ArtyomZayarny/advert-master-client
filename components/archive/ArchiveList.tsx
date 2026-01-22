@@ -145,7 +145,7 @@ export function ArchiveList() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {adverts.map((ad: any) => (
               <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                <Link href={`/adverts/${category}/${ad.id}`}>
+                <Link href={`/listings/${category}/${ad.id}`}>
                   <div className="relative aspect-square">
                     <Image
                       src={ad.upload || "/placeholder.jpg"}
@@ -156,7 +156,7 @@ export function ArchiveList() {
                   </div>
                 </Link>
                 <CardContent className="p-4">
-                  <Link href={`/adverts/${category}/${ad.id}`}>
+                  <Link href={`/listings/${category}/${ad.id}`}>
                     <h3 className="font-semibold line-clamp-2 mb-2 min-h-[3rem]">
                       {ad.title}
                     </h3>

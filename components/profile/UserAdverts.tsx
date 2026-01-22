@@ -105,7 +105,7 @@ export function UserAdverts() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {adverts.map((ad: any) => (
                   <Card key={ad.id} className="overflow-hidden group">
-                    <Link href={`/adverts/${category}/${ad.id}`}>
+                    <Link href={`/listings/${category}/${ad.id}`}>
                       <div className="relative aspect-square">
                         <Image
                           src={ad.upload || "/placeholder.jpg"}
@@ -116,7 +116,7 @@ export function UserAdverts() {
                       </div>
                     </Link>
                     <CardContent className="p-4">
-                      <Link href={`/adverts/${category}/${ad.id}`}>
+                      <Link href={`/listings/${category}/${ad.id}`}>
                         <h3 className="font-semibold line-clamp-2 mb-2">{ad.title}</h3>
                         <p className="text-lg font-bold mb-2">
                           {ad.currency} {ad.price?.toLocaleString()}
@@ -128,7 +128,7 @@ export function UserAdverts() {
                       </Link>
                       <div className="flex space-x-2">
                         <Link
-                          href={`/adverts/${category}/${ad.id}/edit`}
+                          href={`/listings/${category}/${ad.id}/edit`}
                           className="flex-1"
                         >
                           <Button variant="outline" size="sm" className="w-full">

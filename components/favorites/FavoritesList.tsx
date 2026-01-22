@@ -19,7 +19,10 @@ export function FavoritesList() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["favorites", userId],
     queryFn: async () => {
-      const response = await apiClient.get("/user/favourites/all");
+      if (!userId) return {};
+      const response = await apiClient.get("/user/favourites/all", {
+        params: { user: userId },
+      });
       return response.data;
     },
     enabled: isAuthenticated && !!userId,
@@ -107,9 +110,16 @@ export function FavoritesList() {
         <div key={category}>
           <h2 className="text-xl font-semibold mb-4 capitalize">{category}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {adverts.map((ad: any) => (
+            {adverts.map((ad: any) => {
+              // Use db_category from ad data if available, otherwise use category from favorites structure
+              const advertCategory = ad.db_category || category;
+              if (!advertCategory) {
+                console.warn('FavoritesList: Missing category for ad', ad.id);
+                return null;
+              }
+              return (
               <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                <Link href={`/adverts/${category}/${ad.id}`}>
+                <Link href={`/listings/${advertCategory}/${ad.id}`}>
                   <div className="relative aspect-square">
                     <Image
                       src={ad.upload || "/placeholder.jpg"}
@@ -120,7 +130,7 @@ export function FavoritesList() {
                   </div>
                 </Link>
                 <CardContent className="p-4">
-                  <Link href={`/adverts/${category}/${ad.id}`}>
+                  <Link href={`/listings/${advertCategory}/${ad.id}`}>
                     <h3 className="font-semibold line-clamp-2 mb-2 min-h-[3rem]">
                       {ad.title}
                     </h3>
@@ -143,7 +153,8 @@ export function FavoritesList() {
                   </Button>
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}

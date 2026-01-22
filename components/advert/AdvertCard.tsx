@@ -53,8 +53,15 @@ export function AdvertCard({ ad, showFavorite = true }: AdvertCardProps) {
     favoriteMutation.mutate();
   };
 
+  // Ensure category is available, fallback to db_category if needed
+  const advertCategory = ad.category || ad.db_category;
+  
+  if (!advertCategory) {
+    console.warn('AdvertCard: Missing category for ad', ad.id);
+  }
+
   return (
-    <Link href={`/adverts/${ad.category}/${ad.id}`}>
+    <Link href={advertCategory ? `/listings/${advertCategory}/${ad.id}` : '#'}>
       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
         <div className="relative aspect-square">
           <Image
