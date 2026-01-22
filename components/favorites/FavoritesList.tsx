@@ -11,7 +11,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAppSelector } from "@/lib/store/hooks";
 import { toast } from "sonner";
 import { EmptyState } from "@/components/common/EmptyState";
-import { Heart, Search } from "lucide-react";
 
 export function FavoritesList() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
