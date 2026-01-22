@@ -26,6 +26,22 @@ const editAdvertSchema = z.object({
   currency: z.enum(["EUR", "GBP", "RUB"]),
   address: z.string().min(1, "Address is required"),
   city: z.string().min(1, "City is required"),
+  // Category-specific fields
+  square: z.number().optional(),
+  rooms: z.string().optional(),
+  floor: z.number().optional(),
+  type_sell: z.string().optional(),
+  condition: z.string().optional(),
+  isMonth: z.boolean().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  year: z.number().optional(),
+  mileage: z.number().optional(),
+  gas: z.string().optional(),
+  transmission: z.boolean().optional(),
+  isUsed: z.boolean().optional(),
+  employment: z.string().optional(),
+  workType: z.boolean().optional(),
 });
 
 interface EditAdvertFormProps {
@@ -40,7 +56,7 @@ export function EditAdvertForm({ advert, category }: EditAdvertFormProps) {
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
   const [geocode, setGeocode] = useState<string>(advert.geocode || "");
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof editAdvertSchema>>({
     resolver: zodResolver(editAdvertSchema),
     defaultValues: {
       title: advert.title || "",
@@ -49,6 +65,21 @@ export function EditAdvertForm({ advert, category }: EditAdvertFormProps) {
       currency: (advert.currency as "EUR" | "GBP" | "RUB") || "EUR",
       address: advert.address || "",
       city: advert.city || "",
+      square: advert.square || undefined,
+      rooms: advert.rooms || undefined,
+      floor: advert.floor || undefined,
+      type_sell: advert.type_sell || undefined,
+      condition: advert.condition || undefined,
+      isMonth: advert.isMonth || undefined,
+      brand: advert.brand || undefined,
+      model: advert.model || undefined,
+      year: advert.year || undefined,
+      mileage: advert.mileage || undefined,
+      gas: advert.gas || undefined,
+      transmission: advert.transmission || undefined,
+      isUsed: advert.isUsed || undefined,
+      employment: advert.employment || undefined,
+      workType: advert.workType || undefined,
     },
   });
 
@@ -183,7 +214,9 @@ export function EditAdvertForm({ advert, category }: EditAdvertFormProps) {
                 <Label htmlFor="currency">Currency *</Label>
                 <Select
                   value={form.watch("currency")}
-                  onValueChange={(value) => form.setValue("currency", value as "EUR" | "GBP" | "RUB")}
+                  onValueChange={(value) => {
+                    form.setValue("currency", value as "EUR" | "GBP" | "RUB", { shouldValidate: true });
+                  }}
                 >
                   <SelectTrigger>
                     <SelectValue />

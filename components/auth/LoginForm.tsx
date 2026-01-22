@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username or email is required"),

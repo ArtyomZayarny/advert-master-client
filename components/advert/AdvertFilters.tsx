@@ -37,7 +37,7 @@ export function AdvertFilters({ onApplyFilters }: AdvertFiltersProps) {
       city: "",
       priceMin: 0,
       priceMax: 100000,
-      sortBy: "date",
+      sortBy: "date" as "price_asc" | "price_desc" | "date",
     };
     setLocalFilters(resetFilters);
     dispatch(setFilters({}));

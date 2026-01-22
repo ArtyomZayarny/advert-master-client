@@ -23,9 +23,18 @@ export interface Advert {
   brand?: string;
   model?: string;
   year?: number;
+  mileage?: number;
+  gas?: string;
+  transmission?: boolean;
+  isUsed?: boolean;
   square?: number;
   rooms?: string;
-  // ... other fields
+  floor?: number;
+  type_sell?: string;
+  condition?: string;
+  isMonth?: boolean;
+  employment?: string;
+  workType?: boolean;
 }
 
 export const advertsApi = {

@@ -10,7 +10,7 @@ interface MapContextType {
 
 const MapContext = createContext<MapContextType | undefined>(undefined);
 
-const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places"];
+const libraries: ("places")[] = ["places"];
 
 export function MapProvider({ children }: { children: ReactNode }) {
   const apiKey = process.env.NEXT_PUBLIC_MAP_API_KEY || "";

@@ -29,6 +29,22 @@ const baseAdvertSchema = z.object({
   city: z.string().min(1, "City is required"),
   category: z.string(),
   subCategory: z.string().optional(),
+  // Category-specific fields
+  square: z.number().optional(),
+  rooms: z.string().optional(),
+  floor: z.number().optional(),
+  type_sell: z.string().optional(),
+  condition: z.string().optional(),
+  isMonth: z.boolean().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  year: z.number().optional(),
+  mileage: z.number().optional(),
+  gas: z.string().optional(),
+  transmission: z.boolean().optional(),
+  isUsed: z.boolean().optional(),
+  employment: z.string().optional(),
+  workType: z.boolean().optional(),
 });
 
 export function AddAdvertForm() {
@@ -39,13 +55,13 @@ export function AddAdvertForm() {
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [geocode, setGeocode] = useState<string>("");
 
-  const form = useForm({
+  const form = useForm<z.infer<typeof baseAdvertSchema>>({
     resolver: zodResolver(baseAdvertSchema),
     defaultValues: {
       title: "",
       description: "",
       price: 0,
-      currency: "EUR" as const,
+      currency: "EUR",
       address: "",
       city: "",
       category: "",
@@ -230,7 +246,9 @@ export function AddAdvertForm() {
                   <Label htmlFor="currency">Currency *</Label>
                   <Select
                     value={form.watch("currency")}
-                    onValueChange={(value) => form.setValue("currency", value as "EUR" | "GBP" | "RUB")}
+                    onValueChange={(value) => {
+                      form.setValue("currency", value as "EUR" | "GBP" | "RUB", { shouldValidate: true });
+                    }}
                   >
                     <SelectTrigger>
                       <SelectValue />
