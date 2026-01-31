@@ -16,18 +16,18 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and not already retrying, try to refresh token
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't retry for refresh endpoint or if already retrying
+    const isRefreshRequest = originalRequest?.url?.includes('/auth/jwt/refresh');
+    const isLoginRequest = originalRequest?.url?.includes('/auth/jwt/create');
+
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest && !isLoginRequest) {
       originalRequest._retry = true;
 
       try {
         await apiClient.post("/auth/jwt/refresh");
         return apiClient(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, redirect to login
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
+        // Refresh failed - user is not authenticated, just reject
         return Promise.reject(refreshError);
       }
     }
