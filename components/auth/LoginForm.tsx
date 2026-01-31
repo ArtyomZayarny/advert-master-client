@@ -8,12 +8,11 @@ import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { useAppDispatch } from "@/lib/store/hooks";
-import { setUser, setToken } from "@/lib/store/slices/authSlice";
+import { setUser } from "@/lib/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
-import { jwtDecode } from "jwt-decode";
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username or email is required"),
@@ -37,17 +36,8 @@ export function LoginForm() {
 
   const loginMutation = useMutation({
     mutationFn: authApi.login,
-    onSuccess: async (data) => {
-      const { access, refresh } = data;
-      
-      // Save tokens
-      if (typeof window !== "undefined") {
-        localStorage.setItem("token", access);
-        localStorage.setItem("refreshToken", refresh);
-      }
-
-      dispatch(setToken(access));
-
+    onSuccess: async () => {
+      // Cookies are set automatically by the server
       // Get user data
       try {
         const user = await authApi.getCurrentUser();

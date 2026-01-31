@@ -87,4 +87,8 @@ export const authApi = {
       token,
     });
   },
+
+  logout: async (): Promise<void> => {
+    await apiClient.post("/auth/jwt/logout");
+  },
 };

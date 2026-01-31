@@ -3,7 +3,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Provider } from "react-redux";
 import { store } from "@/lib/store";
-import { setUser, setToken } from "@/lib/store/slices/authSlice";
+import { setUser } from "@/lib/store/slices/authSlice";
 import { authApi } from "@/lib/api/auth";
 import { Toaster } from "sonner";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
@@ -15,17 +15,12 @@ function AuthInitializer({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        store.dispatch(setToken(token));
-        try {
-          const user = await authApi.getCurrentUser();
-          store.dispatch(setUser(user));
-        } catch (error) {
-          // Token invalid, clear it
-          localStorage.removeItem("token");
-          localStorage.removeItem("refreshToken");
-        }
+      try {
+        // Try to get user data - cookies are sent automatically
+        const user = await authApi.getCurrentUser();
+        store.dispatch(setUser(user));
+      } catch (error) {
+        // Not authenticated or token expired - that's ok
       }
       setIsInitialized(true);
     };

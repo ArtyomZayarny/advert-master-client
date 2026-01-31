@@ -1,29 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { X, Menu, Search, Heart, User, Plus, LogOut } from "lucide-react";
+import { Menu, Search, Heart, User, Plus, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import Link from "next/link";
 import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
 import { logout } from "@/lib/store/slices/authSlice";
+import { authApi } from "@/lib/api/auth";
 import { useRouter } from "next/navigation";
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const user = useAppSelector((state) => state.auth.user);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const handleLogout = () => {
-    dispatch(logout());
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      // Ignore errors, just clear local state
     }
+    dispatch(logout());
     router.push("/");
     setIsOpen(false);
   };
