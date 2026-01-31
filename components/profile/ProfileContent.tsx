@@ -14,12 +14,11 @@ import { UserAdverts } from "./UserAdverts";
 
 export function ProfileContent() {
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
-  const token = useAppSelector((state) => state.auth.token);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["user-profile"],
     queryFn: authApi.getCurrentUser,
-    enabled: isAuthenticated && !!token,
+    enabled: isAuthenticated,
   });
 
   if (!isAuthenticated) {
