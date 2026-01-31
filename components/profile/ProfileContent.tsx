@@ -1,18 +1,22 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { authApi } from "@/lib/api/auth";
-import { useAppSelector } from "@/lib/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+import { logout } from "@/lib/store/slices/authSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Mail, Phone, MapPin, Edit, Plus, Archive } from "lucide-react";
+import { User, Mail, Phone, MapPin, Edit, Plus, Archive, LogOut } from "lucide-react";
 import Link from "next/link";
-import { EmptyState } from "@/components/common/EmptyState";
 import Image from "next/image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserAdverts } from "./UserAdverts";
+import { toast } from "sonner";
 
 export function ProfileContent() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
   const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
 
   const { data: user, isLoading } = useQuery({
@@ -20,6 +24,17 @@ export function ProfileContent() {
     queryFn: authApi.getCurrentUser,
     enabled: isAuthenticated,
   });
+
+  const handleSignOut = async () => {
+    try {
+      await authApi.logout();
+    } catch (error) {
+      // Continue with local logout even if API fails
+    }
+    dispatch(logout());
+    toast.success("Signed out successfully");
+    router.push("/");
+  };
 
   if (!isAuthenticated) {
     return (
@@ -149,6 +164,14 @@ export function ProfileContent() {
                 Archive
               </Button>
             </Link>
+            <Button
+              variant="outline"
+              className="w-full text-destructive hover:text-destructive"
+              onClick={handleSignOut}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign Out
+            </Button>
           </CardContent>
         </Card>
       </div>
