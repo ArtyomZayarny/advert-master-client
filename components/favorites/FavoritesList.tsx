@@ -28,9 +28,9 @@ export function FavoritesList() {
     enabled: isAuthenticated && !!userId,
   });
 
-  const removeFavorite = async (category: string, advertId: number) => {
+  const removeFavorite = async (advertId: number) => {
     try {
-      await apiClient.post(`/${category}/favourites`, { advertId });
+      await apiClient.delete(`/user/favourites`, { data: { advertId } });
       toast.success("Removed from favorites");
       refetch();
     } catch (error) {
@@ -146,7 +146,7 @@ export function FavoritesList() {
                     variant="outline"
                     size="sm"
                     className="w-full"
-                    onClick={() => removeFavorite(category, ad.id)}
+                    onClick={() => removeFavorite(ad.id)}
                   >
                     <Heart className="h-4 w-4 mr-2 fill-destructive text-destructive" />
                     Remove

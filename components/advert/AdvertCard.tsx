@@ -36,10 +36,7 @@ export function AdvertCard({ ad, showFavorite = true }: AdvertCardProps) {
 
   const favoriteMutation = useMutation({
     mutationFn: async () => {
-      if (!advertCategory) {
-        throw new Error("Category is required");
-      }
-      await apiClient.post(`/${advertCategory}/favourites`, { advertId: ad.id });
+      await apiClient.post(`/user/favourites`, { advertId: ad.id });
     },
     onSuccess: () => {
       setIsFavorite(!isFavorite);
