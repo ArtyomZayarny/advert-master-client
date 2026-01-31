@@ -39,39 +39,39 @@ export function UserAdverts() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4">My Ads</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="aspect-square w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <section>
+        <h2 className="text-2xl font-semibold mb-6">My Ads</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-0">
+                <div className="aspect-square bg-muted" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-muted rounded w-3/4" />
+                  <div className="h-4 bg-muted rounded w-1/2" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
     );
   }
 
   if (!data || Object.keys(data).length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4">My Ads</h2>
-          <div className="text-center py-12">
-            <p className="text-muted-foreground mb-4">You haven&apos;t posted any ads yet</p>
-            <Link href="/add-advert">
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Post Your First Ad
-              </Button>
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+      <section>
+        <h2 className="text-2xl font-semibold mb-6">My Ads</h2>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground mb-4">You haven&apos;t posted any ads yet</p>
+          <Link href="/add-advert">
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Post Your First Ad
+            </Button>
+          </Link>
+        </div>
+      </section>
     );
   }
 
@@ -85,77 +85,71 @@ export function UserAdverts() {
 
   if (Object.keys(adsByCategory).length === 0) {
     return (
-      <Card>
-        <CardContent className="p-6">
-          <h2 className="text-xl font-semibold mb-4">My Ads</h2>
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No ads found</p>
-          </div>
-        </CardContent>
-      </Card>
+      <section>
+        <h2 className="text-2xl font-semibold mb-6">My Ads</h2>
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No ads found</p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <h2 className="text-xl font-semibold mb-4">My Ads</h2>
-        <div className="space-y-6">
-          {Object.entries(adsByCategory).map(([category, adverts]) => (
-            <div key={category}>
-              <h3 className="text-lg font-medium mb-3 capitalize">{category}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {adverts.map((ad: any) => (
-                  <Card key={ad.id} className="overflow-hidden group">
-                    <Link href={`/listings/${category}/${ad.id}`}>
-                      <div className="relative aspect-square">
-                        <Image
-                          src={ad.upload || "/placeholder.jpg"}
-                          alt={ad.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
+    <section className="space-y-8">
+      <h2 className="text-2xl font-semibold">My Ads</h2>
+      {Object.entries(adsByCategory).map(([category, adverts]) => (
+        <div key={category}>
+          <h3 className="text-lg font-medium mb-4 capitalize">{category}</h3>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {adverts.map((ad: any) => (
+              <Card key={ad.id} className="overflow-hidden">
+                <Link href={`/listings/${category}/${ad.id}`}>
+                  <div className="relative aspect-square">
+                    <Image
+                      src={ad.upload || "/placeholder.jpg"}
+                      alt={ad.title}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                </Link>
+                <CardContent className="p-4">
+                  <Link href={`/listings/${category}/${ad.id}`}>
+                    <h3 className="font-semibold line-clamp-2 mb-2">{ad.title}</h3>
+                    <p className="text-lg font-bold mb-2">
+                      {ad.currency} {ad.price?.toLocaleString()}
+                    </p>
+                    <div className="flex items-center text-sm text-muted-foreground mb-3">
+                      <MapPin className="h-3 w-3 mr-1" />
+                      <span className="line-clamp-1">{ad.city || ad.address}</span>
+                    </div>
+                  </Link>
+                  <div className="flex space-x-2">
+                    <Link
+                      href={`/listings/${category}/${ad.id}/edit`}
+                      className="flex-1"
+                    >
+                      <Button variant="outline" size="sm" className="w-full">
+                        <Edit className="h-3 w-3 mr-1" />
+                        Edit
+                      </Button>
                     </Link>
-                    <CardContent className="p-4">
-                      <Link href={`/listings/${category}/${ad.id}`}>
-                        <h3 className="font-semibold line-clamp-2 mb-2">{ad.title}</h3>
-                        <p className="text-lg font-bold mb-2">
-                          {ad.currency} {ad.price?.toLocaleString()}
-                        </p>
-                        <div className="flex items-center text-sm text-muted-foreground mb-3">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          <span className="line-clamp-1">{ad.city || ad.address}</span>
-                        </div>
-                      </Link>
-                      <div className="flex space-x-2">
-                        <Link
-                          href={`/listings/${category}/${ad.id}/edit`}
-                          className="flex-1"
-                        >
-                          <Button variant="outline" size="sm" className="w-full">
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit
-                          </Button>
-                        </Link>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex-1"
-                          onClick={() => deleteAd(category, ad.id)}
-                        >
-                          <Trash2 className="h-3 w-3 mr-1" />
-                          Delete
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => deleteAd(category, ad.id)}
+                    >
+                      <Trash2 className="h-3 w-3 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      ))}
+    </section>
   );
 }
