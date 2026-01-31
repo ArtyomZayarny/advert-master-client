@@ -17,7 +17,9 @@ export function UserAdverts() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["user-adverts", userId],
     queryFn: async () => {
-      const response = await apiClient.get("/my_ads");
+      const response = await apiClient.get("/my_ads", {
+        params: { user_id: userId },
+      });
       return response.data;
     },
     enabled: !!userId,
