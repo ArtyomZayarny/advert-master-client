@@ -4,9 +4,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
-import { useAppSelector } from "@/lib/store/hooks";
+import { useAppSelector, useAppDispatch } from "@/lib/store/hooks";
+import { setUser } from "@/lib/store/slices/authSlice";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,14 +28,16 @@ type EditProfileFormData = z.infer<typeof editProfileSchema>;
 
 export function EditProfileForm() {
   const router = useRouter();
-  const token = useAppSelector((state) => state.auth.token);
+  const queryClient = useQueryClient();
+  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => state.auth.user?.id);
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
   const { data: user, isLoading } = useQuery({
     queryKey: ["user-profile"],
     queryFn: authApi.getCurrentUser,
-    enabled: !!token,
+    enabled: !!userId,
   });
 
   const {
@@ -66,9 +69,7 @@ export function EditProfileForm() {
         `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"}/auth/users/me`,
         {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
           body: formData,
         }
       );
@@ -76,7 +77,11 @@ export function EditProfileForm() {
       if (!response.ok) throw new Error("Failed to update profile");
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (updatedUser) => {
+      // Update Redux store with new user data
+      dispatch(setUser(updatedUser));
+      // Invalidate query cache so profile page shows updated data
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
       toast.success("Profile updated successfully!");
       router.push("/profile");
     },

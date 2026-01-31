@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const registerSchema = z
   .object({
@@ -22,7 +23,6 @@ const registerSchema = z
       .regex(/^[a-zA-Z0-9_]+$/, "Username can only contain letters, numbers, and underscores"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string(),
-    address: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -34,7 +34,8 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export function RegisterForm() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [avatar, setAvatar] = useState<File | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const {
     register,
@@ -67,8 +68,6 @@ export function RegisterForm() {
         email: data.email,
         password: data.password,
         re_password: data.confirmPassword,
-        address: data.address,
-        upload_user: avatar || undefined,
       });
     } finally {
       setIsLoading(false);
@@ -130,13 +129,26 @@ export function RegisterForm() {
           <label htmlFor="password" className="text-sm font-medium">
             Password
           </label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Create a password"
-            {...register("password")}
-            className={errors.password ? "border-destructive" : ""}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a password"
+              {...register("password")}
+              className={errors.password ? "border-destructive pr-10" : "pr-10"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
           {errors.password && (
             <p className="text-sm text-destructive">{errors.password.message}</p>
           )}
@@ -146,13 +158,26 @@ export function RegisterForm() {
           <label htmlFor="confirmPassword" className="text-sm font-medium">
             Confirm Password
           </label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            placeholder="Confirm your password"
-            {...register("confirmPassword")}
-            className={errors.confirmPassword ? "border-destructive" : ""}
-          />
+          <div className="relative">
+            <Input
+              id="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              placeholder="Confirm your password"
+              {...register("confirmPassword")}
+              className={errors.confirmPassword ? "border-destructive pr-10" : "pr-10"}
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
           {errors.confirmPassword && (
             <p className="text-sm text-destructive">
               {errors.confirmPassword.message}
@@ -160,32 +185,6 @@ export function RegisterForm() {
           )}
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="address" className="text-sm font-medium">
-            Address (Optional)
-          </label>
-          <Input
-            id="address"
-            type="text"
-            placeholder="Enter your address"
-            {...register("address")}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="avatar" className="text-sm font-medium">
-            Avatar (Optional)
-          </label>
-          <Input
-            id="avatar"
-            type="file"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) setAvatar(file);
-            }}
-          />
-        </div>
       </div>
 
       <Button type="submit" className="w-full" disabled={isLoading}>

@@ -82,15 +82,19 @@ export function FavoritesList() {
     );
   }
 
-  // Group favorites by category
-  const favoritesByCategory = Object.entries(data).reduce((acc, [category, adverts]: [string, any]) => {
-    if (Array.isArray(adverts) && adverts.length > 0) {
-      acc[category] = adverts;
+  // Flatten all favorites into a single array
+  const allFavorites: any[] = [];
+  Object.entries(data).forEach(([category, adverts]: [string, any]) => {
+    if (Array.isArray(adverts)) {
+      adverts.forEach((ad: any) => {
+        if (ad) {
+          allFavorites.push({ ...ad, _category: ad.db_category || category });
+        }
+      });
     }
-    return acc;
-  }, {} as Record<string, any[]>);
+  });
 
-  if (Object.keys(favoritesByCategory).length === 0) {
+  if (allFavorites.length === 0) {
     return (
       <EmptyState
         icon={Heart}
@@ -105,58 +109,45 @@ export function FavoritesList() {
   }
 
   return (
-    <div className="space-y-8">
-      {Object.entries(favoritesByCategory).map(([category, adverts]) => (
-        <div key={category}>
-          <h2 className="text-xl font-semibold mb-4 capitalize">{category}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {adverts.map((ad: any) => {
-              // Use db_category from ad data if available, otherwise use category from favorites structure
-              const advertCategory = ad.db_category || category;
-              if (!advertCategory) {
-                console.warn('FavoritesList: Missing category for ad', ad.id);
-                return null;
-              }
-              return (
-              <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                <Link href={`/listings/${advertCategory}/${ad.id}`}>
-                  <div className="relative aspect-square">
-                    <Image
-                      src={ad.upload || "/placeholder.jpg"}
-                      alt={ad.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                </Link>
-                <CardContent className="p-4">
-                  <Link href={`/listings/${advertCategory}/${ad.id}`}>
-                    <h3 className="font-semibold line-clamp-2 mb-2 min-h-[3rem]">
-                      {ad.title}
-                    </h3>
-                    <p className="text-lg font-bold mb-2">
-                      {ad.currency} {ad.price?.toLocaleString()}
-                    </p>
-                    <div className="flex items-center text-sm text-muted-foreground mb-2">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      <span className="line-clamp-1">{ad.city || ad.address}</span>
-                    </div>
-                  </Link>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => removeFavorite(ad.id)}
-                  >
-                    <Heart className="h-4 w-4 mr-2 fill-destructive text-destructive" />
-                    Remove
-                  </Button>
-                </CardContent>
-              </Card>
-              );
-            })}
-          </div>
-        </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {allFavorites.map((ad: any) => (
+        <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group hover:scale-[1.02]">
+          <Link href={`/listings/${ad._category}/${ad.id}`}>
+            <div className="relative aspect-square">
+              <Image
+                src={ad.upload || "/placeholder.jpg"}
+                alt={ad.title || "Ad"}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 bg-background/80 hover:bg-background"
+                onClick={(e) => {
+                  e.preventDefault();
+                  removeFavorite(ad.id);
+                }}
+              >
+                <Heart className="h-4 w-4 fill-destructive text-destructive" />
+              </Button>
+            </div>
+          </Link>
+          <CardContent className="p-4">
+            <Link href={`/listings/${ad._category}/${ad.id}`}>
+              <h3 className="font-semibold line-clamp-2 mb-2 min-h-[3rem]">
+                {ad.title}
+              </h3>
+              <p className="text-lg font-bold mb-2">
+                {ad.currency} {ad.price?.toLocaleString()}
+              </p>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <MapPin className="h-3 w-3 mr-1" />
+                <span className="line-clamp-1">{ad.city || ad.address}</span>
+              </div>
+            </Link>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );

@@ -153,11 +153,6 @@ export function ProfileContent() {
                 Post New Ad
               </Button>
             </Link>
-            <Link href="/profile/my-ads">
-              <Button variant="outline" className="w-full">
-                My Ads
-              </Button>
-            </Link>
             <Link href="/profile/archive">
               <Button variant="outline" className="w-full">
                 <Archive className="h-4 w-4 mr-2" />

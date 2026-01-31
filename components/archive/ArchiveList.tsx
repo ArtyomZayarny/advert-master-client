@@ -21,7 +21,9 @@ export function ArchiveList() {
   const { data, isLoading } = useQuery({
     queryKey: ["archive", userId],
     queryFn: async () => {
-      const response = await apiClient.get("/archive/");
+      const response = await apiClient.get("/archive/", {
+        params: { id: userId },
+      });
       return response.data;
     },
     enabled: isAuthenticated && !!userId,
@@ -95,7 +97,7 @@ export function ArchiveList() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {[...Array(8)].map((_, i) => (
           <Card key={i} className="overflow-hidden">
             <Skeleton className="aspect-square w-full" />
@@ -121,15 +123,19 @@ export function ArchiveList() {
     );
   }
 
-  // Group archive by category
-  const archiveByCategory = Object.entries(data).reduce((acc, [category, adverts]: [string, any]) => {
-    if (Array.isArray(adverts) && adverts.length > 0) {
-      acc[category] = adverts;
+  // Flatten all archived ads into a single array
+  const allArchived: any[] = [];
+  Object.entries(data).forEach(([category, adverts]: [string, any]) => {
+    if (Array.isArray(adverts)) {
+      adverts.forEach((ad: any) => {
+        if (ad) {
+          allArchived.push({ ...ad, _category: ad.db_category || category });
+        }
+      });
     }
-    return acc;
-  }, {} as Record<string, any[]>);
+  });
 
-  if (Object.keys(archiveByCategory).length === 0) {
+  if (allArchived.length === 0) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground text-lg">Your archive is empty</p>
@@ -138,64 +144,59 @@ export function ArchiveList() {
   }
 
   return (
-    <div className="space-y-8">
-      {Object.entries(archiveByCategory).map(([category, adverts]) => (
-        <div key={category}>
-          <h2 className="text-xl font-semibold mb-4 capitalize">{category}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {adverts.map((ad: any) => (
-              <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-                <Link href={`/listings/${category}/${ad.id}`}>
-                  <div className="relative aspect-square">
-                    <Image
-                      src={ad.upload || "/placeholder.jpg"}
-                      alt={ad.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                </Link>
-                <CardContent className="p-4">
-                  <Link href={`/listings/${category}/${ad.id}`}>
-                    <h3 className="font-semibold line-clamp-2 mb-2 min-h-[3rem]">
-                      {ad.title}
-                    </h3>
-                    <p className="text-lg font-bold mb-2">
-                      {ad.currency} {ad.price?.toLocaleString()}
-                    </p>
-                    <div className="flex items-center text-sm text-muted-foreground mb-3">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      <span className="line-clamp-1">{ad.city || ad.address}</span>
-                    </div>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleRestore(ad.id)}
-                      disabled={restoreMutation.isPending}
-                    >
-                      <RotateCcw className="h-3 w-3 mr-1" />
-                      Restore
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => handleDelete(ad.id)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-3 w-3 mr-1" />
-                      Delete
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      ))}
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {allArchived.map((ad: any) => (
+          <Card key={ad.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 group hover:scale-[1.02]">
+            <Link href={`/listings/${ad._category}/${ad.id}`}>
+              <div className="relative aspect-square">
+                <Image
+                  src={ad.upload || "/placeholder.jpg"}
+                  alt={ad.title || "Ad"}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+            </Link>
+            <CardContent className="p-4">
+              <Link href={`/listings/${ad._category}/${ad.id}`}>
+                <h3 className="font-semibold line-clamp-2 mb-2 min-h-[3rem]">
+                  {ad.title}
+                </h3>
+                <p className="text-lg font-bold mb-2">
+                  {ad.currency} {ad.price?.toLocaleString()}
+                </p>
+                <div className="flex items-center text-sm text-muted-foreground mb-3">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  <span className="line-clamp-1">{ad.city || ad.address}</span>
+                </div>
+              </Link>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleRestore(ad.id)}
+                  disabled={restoreMutation.isPending}
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Restore
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  onClick={() => handleDelete(ad.id)}
+                  disabled={deleteMutation.isPending}
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Delete
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       {/* Confirm Dialogs */}
       <ConfirmDialog
@@ -216,6 +217,6 @@ export function ArchiveList() {
         variant="destructive"
         onConfirm={confirmDelete}
       />
-    </div>
+    </>
   );
 }
